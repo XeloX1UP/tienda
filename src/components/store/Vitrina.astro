@@ -1,0 +1,24 @@
+---
+import { getTopRatedProducts, listaProductos } from "../../assets/exports";
+import ProductCard from "./ProductCard.astro";
+interface Props {
+    filterId?: string;
+    horizontal?: boolean;
+    compact?: boolean;
+    top?: boolean;
+}
+const { filterId, horizontal, compact, top } : Props = Astro.props;
+let productosFiltrados = listaProductos;
+if (filterId) {
+    productosFiltrados = listaProductos.filter(p => p.id.toString() !== filterId);
+}
+if (top) {
+    productosFiltrados = getTopRatedProducts()
+}
+---
+
+<div class={`container mx-auto my-6  ${horizontal ? 'overflow-x-scroll flex gap-4 px-4' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'}`}>
+    {productosFiltrados.map(producto => (
+    <ProductCard producto={producto} compact={compact} />
+))}
+</div>

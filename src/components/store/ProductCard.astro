@@ -1,0 +1,54 @@
+---
+import { valorAPesosChilenos } from "../../assets/exports";
+import Calificacion from "./Calificacion.astro";
+interface Props {
+    producto: {
+        id: number;
+        imageSrc: string;
+        productName: string;
+        category: string;
+        description: string;
+        price: number;
+        stars: number;
+    };
+    compact?: boolean;
+}
+const { producto, compact } = Astro.props
+const { imageSrc, productName, category, description, price, stars, id } = producto;
+
+
+---
+<div class={`${compact ? 'w-[70%] md:w-[40%]' : ''} p-5 rounded-md border border-bg-200 group shadow`}>
+
+    <div class="">
+        <div class="w-40 h-40 overflow-hidden mx-auto">
+            <a href={`/${id}/product`}>
+            <img
+                src={imageSrc}
+                alt={`Imagen de ${productName}`}
+                class="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                style="-webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%); mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);"
+                transition:name={`productImage${id}`}
+            />
+            
+            </a>
+        </div>
+    </div>
+    <div class="flex flex-col text-text-100 py-3">
+        <a class="text-xl font-semibold truncate" transition:name={`productName${id}`} href={`/${id}/product`}>{productName}</a>
+        <p class="text-accent-100 text-sm -mt-1.5">{category}</p>
+        <p class="text-current/70 italic mt-1 truncate" transition:name={`productDescription${id}`}>{description}</p>
+        <p class={`text-xl font-black mt-2 bg-bg-300/70 w-min py-1 px-2 rounded-lg shadow`}
+        transition:name={`productPrice${id}`}
+        >{valorAPesosChilenos(price)}</p>
+    </div>
+    <div class="flex justify-between items-center">
+        <Calificacion estrellas={stars} compact={compact} />
+        <button class={`rounded-md py-1 px-2 shadow-md hover:shadow-lg hover:cursor-pointer hover:border hover:border-deep-green-500 border border-text-100 hover:scale-110 transition-all active:scale-90 bg-primary-200 text-bg-100 ${compact ? '' : 'text-lg'}`} id="btnAdd"
+        transition:name={`addToCartButton${id}`}
+        >
+            {compact ? 'Agregar' : 'Agregar al carro'}
+        </button> 
+    </div>
+    
+</div>

@@ -1,0 +1,22 @@
+---
+export interface Props {
+    title: string;
+    price: number;
+    quantity: number;
+    image: string;
+}
+
+const { title, price, quantity, image } = Astro.props;
+---
+
+<div class="flex border-b border-deep-green-300 gap-2 p-4">
+    <img src={image} alt={title} class="aspect-square w-14" />
+    <div class="cart-item-details flex-1 text-center overflow-hidden">
+        <h3 class="truncate w-full">{title}</h3>
+        <div class="flex justify-evenly items-center text-sm">
+            <span class="bg-deep-green-950/50 rounded-full py-0.5 px-1.5 text-deep-green-950">{quantity}</span>
+            <span class="total">Total: {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(price * quantity)}</span>
+        </div>
+    </div>
+</div>
+

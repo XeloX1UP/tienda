@@ -1,0 +1,48 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Iniciar Sesión" >
+    <form action="#" method="post" class="bg-bg-300/40 w-5/6 mx-auto p-4 rounded-md shadow-lg [&>input]:transition-all [&>input]:duration-300 [&>input]:ease-in-out [&>input]:focus:shadow-md [&>input]:rounded-md">
+        <h1 class="text-center text-2xl font-black mb-6">Iniciar Sesión</h1>
+        <input type="email" name="email" id="email" placeholder="Correo Electrónico" 
+        class="border-b-2 border-bg-100 focus:border-accent-100 outline-none mb-4 w-full py-2 px-4" required />
+        <div class="relative mb-4">
+            <input type="password" id="password" name="password" required placeholder="Contraseña"
+                class="border-b-2 border-bg-100 focus:border-accent-100 outline-none w-full py-2 px-4 pr-12" 
+            />
+            <button type="button" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-text-200 hover:text-text-100">
+                <!-- ojo abierto (visible por defecto oculto) -->
+                <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <!-- ojo tachado -->
+                <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.64 21.64 0 0 1 5.06-6.06"></path>
+                    <path d="M1 1l22 22"></path>
+                    <path d="M9.88 9.88A3 3 0 0 0 14.12 14.12"></path>
+                </svg>
+            </button>
+        </div>
+        <button type="submit" class="mt-4 bg-primary-100 text-bg-100 py-2 px-4 rounded-md shadow hover:shadow-lg hover:scale-105 transition-transform active:scale-95 w-full font-bold text-xl">Iniciar Sesión</button>
+    </form>
+</Layout>
+<script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const pwd = document.getElementById('password');
+            const toggle = document.getElementById('togglePassword');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+
+            toggle.addEventListener('click', () => {
+                const mostrar = pwd.type === 'password';
+                pwd.type = mostrar ? 'text' : 'password';
+                // alternar iconos
+                eyeOpen.classList.toggle('hidden', !mostrar);
+                eyeClosed.classList.toggle('hidden', mostrar);
+                toggle.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
+            });
+        });
+    </script>

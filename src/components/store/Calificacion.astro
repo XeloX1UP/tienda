@@ -1,0 +1,15 @@
+---
+interface Props {
+    estrellas: number;
+    compact?: boolean;
+}
+const { estrellas, compact } = Astro.props;
+---
+<div>
+      <p class="text-xs truncate">Calificación: <span class={`font-bold ${compact ? 'text-sm' : 'text-lg'}`}>{estrellas.toFixed(1)}</span></p>
+            <div class="flex items-center -mt-2">
+                {Array.from({ length: 5 }, (_, index) => (
+                    <span class={`text-lg ${index < estrellas ? 'text-yellow-500' : 'text-gray-300'}`}>&#9733;</span>
+                ))}
+            </div>
+</div>

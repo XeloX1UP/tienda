@@ -1,0 +1,17 @@
+---
+import Hero from "../components/landing/Hero.astro";
+import Suscripcion from "../components/landing/Suscripcion.astro";
+import Vitrina from "../components/store/Vitrina.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <main class="">
+        <Hero />
+        <section>
+            <Vitrina top server:defer />
+            <Suscripcion />
+        </section>
+
+    </main>
+</Layout>

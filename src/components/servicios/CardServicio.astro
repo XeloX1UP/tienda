@@ -1,0 +1,95 @@
+---
+import { valorAPesosChilenos } from "../../assets/exports";
+interface Props {
+    price: number;
+    type: string;
+    details: string;
+    included: string[];
+    image: string;
+}
+const { price, type, details, included, image }: Props = Astro.props;
+---
+
+<div class="flex p-5 sm:p-10 mb-20 relative min-h-[300px] overflow-hidden bg-cover bg-center bg-no-repeat" style={`background-image: url('${image}')`}>
+    <!-- overlay para que el texto sea legible sobre la imagen -->
+    <div class="absolute inset-0 bg-black/60 z-0"></div>
+
+    <div id="infoServicio" class=" z-10 text-bg-100">
+        <h2 class="text-3xl font-bold mb-4 w-[70%]">Servicio de lavado<br /> <span class="text-5xl font-extrabold text-bg-200 ml-10 ">{type}</span></h2>
+        <p class="mb-4 font-bold text-bg-100/70 italic text-lg">{details}</p>
+        <ul class=" mb-4 text-deep-green-950 ms-5">
+            {included.map(item => (
+                <li class="mb-2 flex items-center">
+                    <img src="/correct.svg" alt="Correct" class="w-6 h-6 mr-2" />
+                    <span>{item}</span>
+                </li>
+            ))}
+        </ul>
+        <p class="font-black text-deep-green-950 w-[90%] text-balance">¡Disfruta de un vehículo impecable con nuestro servicio de lavado {type} por solo <span class="bg-text-100 text-bg-100 border border-bg-100 py-0.5 px-2 rounded-full">{valorAPesosChilenos(price)}</span> !</p>
+        <div>
+            <button class="mt-4 bg-bg-100 text-text-100 font-bold px-4 py-2 rounded-lg hover:bg-text-200 hover:text-bg-100 border-2 border-text-100 hover:shadow-sm  transition-all hover:cursor-pointer active:scale-95 hover:scale-105" id={`button-${type}`}>
+                Agendar Servicio
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="hidden fixed inset-0 bg-black/50 items-center justify-center z-50" id={`modal-${type}`}>
+    <div class="bg-bg-200 p-8 rounded-lg w-[90%] max-w-2xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-deep-green-950">Agendar Servicio {type}</h3>
+            <button class="text-2xl font-bold hover:text-deep-green-700" id={`closeModal-${type}`}>&times;</button>
+        </div>
+        <form class="flex flex-col gap-4" id={`Agendar-${type}`}>
+            <input type="text" placeholder="Nombre" name="Nombre" class="p-2 border border-text-100/50 rounded" />
+            <input type="email" placeholder="Email" name="Email" class="p-2 border border-text-100/50 rounded" />
+            <input type="tel" placeholder="Teléfono" name="Telefono" class="p-2 border border-text-100/50 rounded" />
+            <textarea placeholder="Mensaje" name="Mensaje" class="p-2 border border-text-100/50 rounded h-32"></textarea>
+            <button type="submit" class="bg-text-100 text-white py-2 rounded hover:bg-bg-100 hover:text-text-100 border-2 border-transparent hover:border-text-100 transition-colors font-black">
+                Enviar
+            </button>
+        </form>
+    </div>
+</div>
+
+<script define:vars={{ type }}>
+    const modal = document.getElementById(`modal-${type}`);
+    const openButton = document.getElementById(`button-${type}`);
+    const closeButton = document.getElementById(`closeModal-${type}`);
+    const form = document.getElementById(`Agendar-${type}`);
+
+    openButton?.addEventListener('click', () => {
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    });
+
+    closeButton?.addEventListener('click', () => {
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+        console.log('Cerrando modal');
+    });
+
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal?.classList.add('hidden');
+            modal?.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+    });
+    form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const message = `Hola, quisiera agendar un servicio de lavado ${type}.\n\nDatos:\nNombre: ${data.Nombre}\nEmail: ${data.Email}\nTeléfono: ${data.Telefono}\nMensaje: ${data.Mensaje}`;
+        const whatsappUrl = `https://wa.me/+56966977712?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        
+        alert(`Gracias por agendar el servicio ${type}. Nos pondremos en contacto contigo pronto.`);
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+        form.reset();
+    });
+</script>
