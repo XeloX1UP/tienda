@@ -8,8 +8,7 @@ export const prerender = false;
 const { id } = Astro.params;
 const producto = listaProductos.find(p => p.id.toString() === id);
 if (!producto) {
-    Astro.response.status = 404;
-    throw new Error(`Producto con id ${id} no encontrado.`);
+    return Astro.redirect('/404');
 }
 ---
 
@@ -41,7 +40,7 @@ if (!producto) {
         </div>
         <div>
             <button class="mt-4 bg-primary-200 text-bg-100 py-2 px-4 rounded-md shadow hover:shadow-lg hover:scale-105 transition-transform active:scale-95 w-5/6 h-14 text-xl font-bold"
-            transition:name={`addToCartButton${id}`}
+            
             >
                 Agregar al carro
             </button>

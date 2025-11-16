@@ -5,18 +5,18 @@ import warrantyIcon from '../../assets/images/svg/plus.svg'
 ---
 <section class="container mx-auto p-8 bg-linear-to-r from-bg-300 to-bg-200 rounded-lg shadow-lg mb-6">
             <div class="">
-                <div class="text-accent-100 font-semibold mb-2">Nuevo · Envío gratis en pedidos mayores a $10.000</div>
-                <h1 class="text-3xl font-bold mb-2">Tecnología que impulsa tu día a día</h1>
-                <p class="text-text-200/80 mb-4">Encuentra laptops, accesorios y gadgets inteligentes seleccionados para rendimiento y diseño. Garantía, soporte y precios competitivos.</p>
-                <div class="flex gap-3 mt-4">
-                    <a class=" bg-accent-100 text-bg-100 py-2 px-4 rounded-md" href="/auraStore">Comprar ahora</a>
+                <div class="text-accent-100/80 font-semibold mb-2">Nuevo · Envío gratis en pedidos mayores a $10.000</div>
+                <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold mb-2">Tecnología que impulsa tu día a día</h1>
+                <p class="text-text-200/80 sm:text-lg md:text-xl lg:text-2xl mb-4">Encuentra laptops, accesorios y gadgets inteligentes seleccionados para rendimiento y diseño. Garantía, soporte y precios competitivos.</p>
+                <div class="flex gap-3 mt-4 [&>a]:sm:text-lg [&>a]:lg:text-2xl">
+                    <a class=" bg-accent-100 text-bg-100 py-2 px-4 rounded-md  " href="/auraStore">Comprar ahora</a>
                     <a class="border border-accent-200 text-accent-100 py-2 px-4 rounded-md" href="/auraStore">Explorar productos</a>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-8 [&>div]:min-h-[200px] sm:[&>div]:min-h-0 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:gap-3 [&>div]:justify-center sm:[&>div]:justify-start [&>div]:bg-linear-to-r  [&>div]:from-bg-200 [&>div]:to-bg-300 [&>div]:p-1 sm:[&>div]:p-4 [&>div]:rounded-md [&>div]:shadow [&>div]:border [&>div]:border-text-100/20">
                     <div class="">
                         <img src={supportIcon.src} class="w-10 h-10 text-accent-100">
-                        <div class="text-center text-balance">
+                        <div class="text-center text-balance md:text-lg lg:text-2xl">
                             <div class="font-bold">Soporte técnico 24/7</div>
                             <div class="text-text-200 italic">Asistencia experta cuando la necesites.</div>
                         </div>
@@ -24,7 +24,7 @@ import warrantyIcon from '../../assets/images/svg/plus.svg'
 
                     <div class="">
                         <img src={warrantyIcon.src} class="w-10 h-10 text-accent-100">
-                        <div class="text-center text-balance">
+                        <div class="text-center text-balance md:text-lg lg:text-2xl">
                             <div class="font-bold">Garantía extendida</div>
                             <div class="text-text-200">Planes opcionales para mayor tranquilidad.</div>
                         </div>
@@ -32,7 +32,7 @@ import warrantyIcon from '../../assets/images/svg/plus.svg'
 
                     <div class="">
                         <img src={deliveryIcon.src} class="w-10 h-10 text-accent-100">
-                        <div class="text-center text-balance">
+                        <div class="text-center text-balance md:text-lg lg:text-2xl">
                             <div class="font-bold">Envío rápido</div>
                             <div class="text-text-200">Entrega express en 24-48 horas en ciudades principales.</div>
                         </div>
