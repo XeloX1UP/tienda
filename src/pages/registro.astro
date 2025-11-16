@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Registro">
-    <form action="#" class="bg-bg-300/40 w-5/6 mx-auto p-4 rounded-md shadow-lg [&>input]:transition-all [&>input]:duration-300 [&>input]:ease-in-out [&>input]:focus:shadow-md [&>input]:rounded-md" >
+    <form action="#" class="bg-bg-300/40 w-5/6 md:max-w-[800px] mx-auto p-4 rounded-md shadow-lg [&>input]:transition-all [&>input]:duration-300 [&>input]:ease-in-out [&>input]:focus:shadow-md [&>input]:rounded-md" >
         <h1 class="text-center text-2xl font-black mb-6">Registro</h1>
         <input type="text" id="username" name="username" required placeholder="Nombre de usuario"
         class="border-b-2 border-bg-100 focus:border-accent-100 outline-none mb-4 w-full py-2 px-4" 
@@ -49,21 +49,21 @@ import Layout from "../layouts/Layout.astro";
     </div>
 
     <!-- script cliente para alternar visibilidad de la contraseña -->
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', () => {
-            const pwd = document.getElementById('password');
-            const toggle = document.getElementById('togglePassword');
-            const eyeOpen = document.getElementById('eye-open');
-            const eyeClosed = document.getElementById('eye-closed');
-
-            toggle.addEventListener('click', () => {
-                const mostrar = pwd.type === 'password';
-                pwd.type = mostrar ? 'text' : 'password';
-                // alternar iconos
-                eyeOpen.classList.toggle('hidden', !mostrar);
-                eyeClosed.classList.toggle('hidden', mostrar);
-                toggle.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
-            });
-        });
-    </script>
 </Layout>
+<script >
+console.log('ejecutando script de registro');
+    
+const pwd = document.querySelector('#password') as HTMLInputElement;
+const toggle = document.querySelector('#togglePassword');
+const eyeOpen = document.querySelector('#eye-open');
+const eyeClosed = document.querySelector('#eye-closed');
+
+toggle?.addEventListener('click', () => {
+    const mostrar = pwd.type === 'password';
+    pwd.type = mostrar ? 'text' : 'password';
+    // alternar iconos
+    eyeOpen?.classList.toggle('hidden', !mostrar);
+    eyeClosed?.classList.toggle('hidden', mostrar);
+    toggle.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
+});
+</script>

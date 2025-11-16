@@ -29,20 +29,20 @@ import Layout from "../layouts/Layout.astro";
         <button type="submit" class="mt-4 bg-primary-100 text-bg-100 py-2 px-4 rounded-md shadow hover:shadow-lg hover:scale-105 transition-transform active:scale-95 w-full font-bold text-xl">Iniciar Sesión</button>
     </form>
 </Layout>
-<script type="module">
-        document.addEventListener('DOMContentLoaded', () => {
-            const pwd = document.getElementById('password');
-            const toggle = document.getElementById('togglePassword');
-            const eyeOpen = document.getElementById('eye-open');
-            const eyeClosed = document.getElementById('eye-closed');
+<script >
+    console.log('ejecutando script de login');
+            
+    const pwd = document.querySelector('#password') as HTMLInputElement;
+    const toggle = document.querySelector('#togglePassword');
+    const eyeOpen = document.querySelector('#eye-open');
+    const eyeClosed = document.querySelector('#eye-closed');
 
-            toggle.addEventListener('click', () => {
-                const mostrar = pwd.type === 'password';
-                pwd.type = mostrar ? 'text' : 'password';
-                // alternar iconos
-                eyeOpen.classList.toggle('hidden', !mostrar);
-                eyeClosed.classList.toggle('hidden', mostrar);
-                toggle.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
-            });
-        });
-    </script>
+    toggle?.addEventListener('click', () => {
+        const mostrar = pwd.type === 'password';
+        pwd.type = mostrar ? 'text' : 'password';
+        // alternar iconos
+        eyeOpen?.classList.toggle('hidden', !mostrar);
+        eyeClosed?.classList.toggle('hidden', mostrar);
+        toggle.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
+    });
+</script>
