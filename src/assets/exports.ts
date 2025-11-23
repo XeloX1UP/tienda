@@ -12,6 +12,7 @@ export interface Producto {
   size?: string[];
   gender?: string;
   variants?: number[];
+  aMedida?: boolean;
 }
 // cargar todas las imágenes en src/assets/images/productos y mapear a filenames -> url
 const images = import.meta.glob('./images/productos/*.{jpg,jpeg,png,webp}', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
@@ -74,13 +75,14 @@ export const listaProductos : Producto[] = [
       importCoverImage(3),
     productName: "Buzo en franela algodón",
     category: "Ropa",
-    description: `Buzo oversize en franela de algodón. Disponible en tallas S, M, L y XL.`,
+    description: `Buzo oversize en franela de algodón. Conjunto incluye la parte superior e inferior. Disponible en tallas S, M, L y XL.`,
     price: 30000,
     gender: "Mujer",
     size: ["S", "M", "L", "XL"],
     stock: 15,
     stars: 4,
-    additionalImages: importAditionalImages(3)
+    additionalImages: importAditionalImages(3),
+    aMedida: true
   },
   {
     id: 4,
@@ -103,7 +105,8 @@ export const listaProductos : Producto[] = [
     price: 15000,
     stock: 8,
     stars: 4,
-    additionalImages: importAditionalImages(5)
+    additionalImages: importAditionalImages(5),
+    aMedida: true
   }
   
 ];
