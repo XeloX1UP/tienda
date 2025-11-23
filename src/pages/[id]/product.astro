@@ -10,38 +10,112 @@ const producto = listaProductos.find(p => p.id.toString() === id);
 if (!producto) {
     return Astro.redirect('/404');
 }
+
+// Crear lista de todas las imágenes (principal + adicionales)
+const todasLasImagenes = [producto.imageSrc, ...(producto.additionalImages || [])];
 ---
 
 <Layout title={producto.productName}>
     <section class="text-center container mx-auto ">
         <h2 class="text-3xl md:text-4xl font-bold" transition:name={`productName${id}`}>{producto.productName}</h2>
-        <img src={producto.imageSrc} alt={`Imagen de ${producto.productName}`} class="w-64 h-64 object-cover mx-auto mt-4 rounded-md shadow-lg" transition:name={`productImage${id}`} />
-        <div class="flex justify-end  w-5/6">
-            <Calificacion estrellas={producto.stars} />
+        
+        <!-- Galería de imágenes -->
+        <div class="relative w-64 h-64 mx-auto mt-4 rounded-md shadow-lg overflow-hidden bg-bg-200/20">
+            <div class="relative w-full h-full">
+                {todasLasImagenes.map((imagen, index) => (
+                    <img 
+                        src={imagen} 
+                        alt={`${producto.productName} - Imagen ${index + 1}`}
+                        class={`absolute w-full h-full object-cover transition-opacity duration-500 ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+                        data-image-index={index}
+                        transition:name={index === 0 ? `productImage${id}` : undefined}
+                    />
+                ))}
+            </div>
+
+            <!-- Botones de navegación (solo si hay múltiples imágenes) -->
+            {todasLasImagenes.length > 1 && (
+                <>
+                    <button 
+                        id="prevBtn" 
+                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
+                        aria-label="Imagen anterior"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button 
+                        id="nextBtn" 
+                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
+                        aria-label="Siguiente imagen"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <!-- Indicadores de imagen -->
+                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                        {todasLasImagenes.map((_, index) => (
+                            <button
+                                class={`w-2 h-2 rounded-full transition-all ${index === 0 ? 'bg-white w-6' : 'bg-white/50'}`}
+                                data-dot-index={index}
+                                aria-label={`Ver imagen ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+
+        <div class="flex justify-end w-5/6">
+            <Calificacion estrellas={producto.stars ?? 0} />
         </div>
         <div class="mt-4 bg-bg-200/20 p-4 text-left sm:text-lg md:text-xl rounded-md shadow whitespace-pre-wrap">
             <p class="mx-auto max-w-[600px]">{producto.description}</p>
         </div>
         <div>
-            <p class="mt-4 text-2xl sm:text-3xl font-semibold"
+            <p id="valor" class="mt-4 text-2xl sm:text-3xl font-semibold"
             transition:name={`productPrice${id}`}
             >Valor: {valorAPesosChilenos(producto.price)}</p>
         </div>
         <div class="text-left mt-4 p-4">
             <p class="italic text-text-200 sm:text-lg">Stock disponible</p>
+
+            <!-- reemplazado: mostrar tallas como chips seleccionables -->
+            {producto.size && (
+                <div class="my-10">
+                    <p class="italic text-text-200 sm:text-lg mb-2">Tallas disponibles</p>
+
+                    <div id="sizeSelector" class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                        {producto.size.map((s, idx) => (
+                            <button
+                                type="button"
+                                class={`size-chip inline-flex items-center justify-center px-3 py-1.5 rounded-full border transition-all text-sm ${idx === 0 ? 'bg-accent-100 text-bg-100 border-accent-100' : 'bg-bg-200/50 text-text-200 border-bg-300 hover:bg-accent-50 hover:border-accent-100'}`}
+                                data-size={s}
+                                aria-pressed={idx === 0 ? 'true' : 'false'}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+
+                    <!-- valor por defecto (se actualiza en cliente) -->
+                    <input type="hidden" name="selectedSize" id="selectedSize" value={producto.size[0]} />
+                </div>
+            )}
             <div class="flex justify-evenly items-center mt-3">
-    <select name="cantidad" id="cantidad" class="border border-bg-300 rounded-md p-2 shadow-md hover:shadow-lg sm:text-xl md:text-2xl">
-        {Array.from({ length: producto.stock >= 10 ? 10 : producto.stock }, (_, i) => i + 1).map(cantidad => (
-            <option value={cantidad} >{cantidad} u.</option>
-        ))}
-    </select>
-    <p id="valorPorCantidad" class="sm:text-lg md:text-xl">Total: <span id="valorSpan" class="text-lg sm:text-xl md:text-2xl font-black">{valorAPesosChilenos(producto.price)}</span></p>
-</div>
+                <select name="cantidad" id="cantidad" class="border border-bg-300 rounded-md p-2 shadow-md hover:shadow-lg sm:text-xl md:text-2xl">
+                    {Array.from({ length: producto.stock ?? 0 >= 10 ? 10 : producto.stock ?? 0 }, (_, i) => i + 1).map(cantidad => (
+                        <option value={cantidad}>{cantidad} u.</option>
+                    ))}
+                </select>
+                <p id="valorPorCantidad" class="sm:text-lg md:text-xl">Total: <span id="valorSpan" class="text-lg sm:text-xl md:text-2xl font-black">{valorAPesosChilenos(producto.price)}</span></p>
+            </div>
         </div>
         <div>
-            <button class="mt-4 bg-primary-200 hover:bg-primary-200/90 border border-primary-200 text-bg-100 py-2 sm:py-3 md:py-5 px-4 rounded-md shadow hover:shadow-lg active:scale-95 w-full text-xl sm:text-2xl font-bold"
-            
-            >
+            <button class="mt-4 bg-primary-200 hover:bg-primary-200/90 border border-primary-200 text-bg-100 py-2 sm:py-3 md:py-5 px-4 rounded-md shadow hover:shadow-lg active:scale-95 w-full text-xl sm:text-2xl font-bold">
                 Agregar al carro
             </button>
         </div>
@@ -50,17 +124,138 @@ if (!producto) {
         </div>
     </section>
 </Layout>
-<script define:vars={{price: producto.price}}>
+
+<script define:vars={{ totalImages: todasLasImagenes.length }}>
     function valorAPesosChilenos(valor) {
         return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(valor)
     }
-    const selectCantidad = document.getElementById('cantidad');
-    const valorSpan = document.getElementById('valorSpan');
-    const precioUnitario = price;
-    selectCantidad?.addEventListener('change', () => {
-        const cantidadSeleccionada = parseInt(selectCantidad.value);
-        const valorTotal = precioUnitario * cantidadSeleccionada;
-        valorSpan.textContent = `${valorAPesosChilenos(valorTotal)}`;
-    });
     
+    function initializeQuantitySelector() {
+        const selectCantidad = document.getElementById('cantidad');
+        const valorSpan = document.getElementById('valorSpan');
+        const precioTexto = document.getElementById('valor')?.textContent || '';
+        
+        const precioMatch = precioTexto.match(/\$[\d.,]+/);
+        const precioUnitario = precioMatch ? parseInt(precioMatch[0].replace(/\D/g, '')) : 0;
+        
+        selectCantidad?.removeEventListener('change', handleChange);
+        selectCantidad?.addEventListener('change', handleChange);
+        
+        function handleChange() {
+            const cantidadSeleccionada = parseInt(selectCantidad?.value);
+            const valorTotal = precioUnitario * cantidadSeleccionada;
+            valorSpan.textContent = `${valorAPesosChilenos(valorTotal)}`;
+        }
+        
+        handleChange();
+    }
+
+    function initializeImageGallery() {
+        if (totalImages <= 1) return;
+
+        let currentImageIndex = 0;
+        const images = document.querySelectorAll('[data-image-index]');
+        const dots = document.querySelectorAll('[data-dot-index]');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateGallery() {
+            images.forEach((img, index) => {
+                img.classList.toggle('opacity-0', index !== currentImageIndex);
+                img.classList.toggle('opacity-100', index === currentImageIndex);
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('w-6', index === currentImageIndex);
+                dot.classList.toggle('bg-white/50', index !== currentImageIndex);
+                dot.classList.toggle('bg-white', index === currentImageIndex);
+            });
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % totalImages;
+            console.log(currentImageIndex);
+            
+            updateGallery();
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+            console.log(currentImageIndex);
+            updateGallery();
+        }
+
+        prevBtn?.addEventListener('click', prevImage);
+        nextBtn?.addEventListener('click', nextImage);
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentImageIndex = index;
+                updateGallery();
+            });
+        });
+
+        // Soporte para teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+        });
+    }
+    
+    initializeQuantitySelector();
+    initializeImageGallery();
+    
+    document.addEventListener('astro:after-swap', () => {
+        initializeQuantitySelector();
+        initializeImageGallery();
+    });
+</script>
+
+<script define:vars={{hasSizes: producto.size}}>
+    function initializeSizeSelector() {
+        if (!hasSizes) return;
+        const container = document.getElementById('sizeSelector');
+        const hidden = document.getElementById('selectedSize');
+        if (!container || !hidden) return;
+
+        const buttons = Array.from(container.querySelectorAll('.size-chip'));
+
+        // quitar listeners previos por seguridad
+        buttons.forEach(btn => btn.removeEventListener('click', handleClick));
+
+        function handleClick(e) {
+            const clicked = e.currentTarget;
+            buttons.forEach(b => {
+                const is = b === clicked;
+                b.classList.toggle('bg-accent-100', is);
+                b.classList.toggle('text-bg-100', is);
+                b.classList.toggle('border-accent-100', is);
+                b.classList.toggle('bg-bg-200/50', !is);
+                b.classList.toggle('text-text-200', !is);
+                b.setAttribute('aria-pressed', is ? 'true' : 'false');
+            });
+            hidden.value = clicked.dataset.size || '';
+        }
+
+        // añadir listeners
+        buttons.forEach(btn => btn.addEventListener('click', handleClick));
+
+        // accesibilidad: permitir selección por teclado (Enter / Space)
+        container.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const active = document.activeElement;
+                if (active?.classList.contains('size-chip')) {
+                    e.preventDefault();
+                    active.click();
+                }
+            }
+        });
+    }
+
+    // inicializar junto a los otros inicializadores
+    initializeSizeSelector();
+
+    document.addEventListener('astro:after-swap', () => {
+        initializeSizeSelector();
+    });
 </script>
