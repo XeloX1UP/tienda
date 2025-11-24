@@ -13,15 +13,16 @@ if (!producto) {
 
 // Crear lista de todas las imágenes (principal + adicionales)
 const todasLasImagenes = [producto.imageSrc, ...(producto.additionalImages || [])];
+
 ---
 
 <Layout title={producto.productName}>
-    <section class="text-center container mx-auto ">
+    <product-page class="text-center container mx-auto ">
         <h2 class="text-3xl md:text-4xl font-bold" transition:name={`productName${id}`}>{producto.productName}</h2>
         
         <!-- Galería de imágenes -->
         <div class="relative w-64 h-64 mx-auto mt-4 rounded-md shadow-lg overflow-hidden bg-bg-200/20">
-            <div class="relative w-full h-full">
+            <div class="relative w-full h-full" data-galleryLength={todasLasImagenes.length}>
                 {todasLasImagenes.map((imagen, index) => (
                     <img 
                         src={imagen} 
@@ -85,7 +86,7 @@ const todasLasImagenes = [producto.imageSrc, ...(producto.additionalImages || []
 
             <!-- reemplazado: mostrar tallas como chips seleccionables -->
             {producto.size && (
-                <div class="my-10">
+                <div class="my-10" data-has-sizes="true">
                     <p class="italic text-text-200 sm:text-lg mb-2">Tallas disponibles</p>
 
                     <div id="sizeSelector" class="flex flex-wrap gap-2 justify-center sm:justify-start">
@@ -122,140 +123,131 @@ const todasLasImagenes = [producto.imageSrc, ...(producto.additionalImages || []
         <div>
             <Vitrina filterId={id} horizontal compact/>
         </div>
-    </section>
+    </product-page>
 </Layout>
 
-<script define:vars={{ totalImages: todasLasImagenes.length }}>
-    function valorAPesosChilenos(valor) {
-        return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(valor)
-    }
-    
-    function initializeQuantitySelector() {
-        const selectCantidad = document.getElementById('cantidad');
-        const valorSpan = document.getElementById('valorSpan');
-        const precioTexto = document.getElementById('valor')?.textContent || '';
-        
-        const precioMatch = precioTexto.match(/\$[\d.,]+/);
-        const precioUnitario = precioMatch ? parseInt(precioMatch[0].replace(/\D/g, '')) : 0;
-        
-        selectCantidad?.removeEventListener('change', handleChange);
-        selectCantidad?.addEventListener('change', handleChange);
-        
-        function handleChange() {
-            const cantidadSeleccionada = parseInt(selectCantidad?.value);
-            const valorTotal = precioUnitario * cantidadSeleccionada;
-            valorSpan.textContent = `${valorAPesosChilenos(valorTotal)}`;
-        }
-        
-        handleChange();
-    }
 
-    function initializeImageGallery() {
-        if (totalImages <= 1) return;
+<script>
+import { valorAPesosChilenos } from "../../assets/exports";
 
-        let currentImageIndex = 0;
-        const images = document.querySelectorAll('[data-image-index]');
-        const dots = document.querySelectorAll('[data-dot-index]');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        function updateGallery() {
-            images.forEach((img, index) => {
-                img.classList.toggle('opacity-0', index !== currentImageIndex);
-                img.classList.toggle('opacity-100', index === currentImageIndex);
-            });
-
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('w-6', index === currentImageIndex);
-                dot.classList.toggle('bg-white/50', index !== currentImageIndex);
-                dot.classList.toggle('bg-white', index === currentImageIndex);
-            });
-        }
-
-        function nextImage() {
-            currentImageIndex = (currentImageIndex + 1) % totalImages;
-            console.log(currentImageIndex);
-            
-            updateGallery();
-        }
-
-        function prevImage() {
-            currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
-            console.log(currentImageIndex);
-            updateGallery();
-        }
-
-        prevBtn?.addEventListener('click', prevImage);
-        nextBtn?.addEventListener('click', nextImage);
-
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                currentImageIndex = index;
-                updateGallery();
-            });
-        });
-
-        // Soporte para teclado
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') prevImage();
-            if (e.key === 'ArrowRight') nextImage();
-        });
-    }
-    
-    initializeQuantitySelector();
-    initializeImageGallery();
-    
-    document.addEventListener('astro:after-swap', () => {
-        initializeQuantitySelector();
-        initializeImageGallery();
-    });
-</script>
-
-<script define:vars={{hasSizes: producto.size}}>
-    function initializeSizeSelector() {
-        if (!hasSizes) return;
-        const container = document.getElementById('sizeSelector');
-        const hidden = document.getElementById('selectedSize');
-        if (!container || !hidden) return;
-
-        const buttons = Array.from(container.querySelectorAll('.size-chip'));
-
-        // quitar listeners previos por seguridad
-        buttons.forEach(btn => btn.removeEventListener('click', handleClick));
-
-        function handleClick(e) {
-            const clicked = e.currentTarget;
-            buttons.forEach(b => {
-                const is = b === clicked;
-                b.classList.toggle('bg-accent-100', is);
-                b.classList.toggle('text-bg-100', is);
-                b.classList.toggle('border-accent-100', is);
-                b.classList.toggle('bg-bg-200/50', !is);
-                b.classList.toggle('text-text-200', !is);
-                b.setAttribute('aria-pressed', is ? 'true' : 'false');
-            });
-            hidden.value = clicked.dataset.size || '';
-        }
-
-        // añadir listeners
-        buttons.forEach(btn => btn.addEventListener('click', handleClick));
-
-        // accesibilidad: permitir selección por teclado (Enter / Space)
-        container.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                const active = document.activeElement;
-                if (active?.classList.contains('size-chip')) {
-                    e.preventDefault();
-                    active.click();
+    class ProductPage extends HTMLElement {
+        connectedCallback() {
+            // Inicializador de selector de cantidad
+            function initializeQuantitySelector() {
+                const selectCantidad = document.getElementById('cantidad') as HTMLSelectElement;
+                const valorSpan = document.getElementById('valorSpan') as HTMLSpanElement;
+                const precioTexto = document.getElementById('valor')?.textContent || '';
+                
+                const precioMatch = precioTexto.match(/\$[\d.,]+/);
+                const precioUnitario = precioMatch ? parseInt(precioMatch[0].replace(/\D/g, '')) : 0;
+                
+                selectCantidad?.removeEventListener('change', handleChange);
+                selectCantidad?.addEventListener('change', handleChange);
+                
+                function handleChange() {
+                    const cantidadSeleccionada = parseInt(selectCantidad?.value);
+                    const valorTotal = precioUnitario * cantidadSeleccionada;
+                    valorSpan.textContent = `${valorAPesosChilenos(valorTotal)}`;
                 }
+                
+                handleChange();
             }
-        });
+            
+            initializeQuantitySelector();
+            
+            // Inicializador de galería de imágenes
+            const totalImages = parseInt(document.querySelector('[data-galleryLength]')?.getAttribute('data-galleryLength') || '0');
+            function initializeImageGallery() {
+                
+                if (totalImages <= 1) return;
+
+                let currentImageIndex = 0;
+                const images = document.querySelectorAll('[data-image-index]');
+                const dots = document.querySelectorAll('[data-dot-index]');
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+
+                function updateGallery() {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('opacity-0', index !== currentImageIndex);
+                        img.classList.toggle('opacity-100', index === currentImageIndex);
+                    });
+
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('w-6', index === currentImageIndex);
+                        dot.classList.toggle('bg-white/50', index !== currentImageIndex);
+                        dot.classList.toggle('bg-white', index === currentImageIndex);
+                    });
+                }
+
+                function nextImage() {
+                    currentImageIndex = (currentImageIndex + 1) % totalImages;
+                    
+                    updateGallery();
+                }
+
+                function prevImage() {
+                    currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+                    updateGallery();
+                }
+
+                prevBtn?.addEventListener('click', prevImage);
+                nextBtn?.addEventListener('click', nextImage);
+
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentImageIndex = index;
+                        updateGallery();
+                    });
+                });
+            }
+            
+            initializeImageGallery();
+
+            // Inicializador de selector de tallas
+            const hasSizes = this.querySelector('[data-has-sizes="true"]');
+            function initializeSizeSelector() {
+                if (!hasSizes) return;
+                const container = document.getElementById('sizeSelector') as HTMLDivElement;
+                const hidden = document.getElementById('selectedSize') as HTMLInputElement;
+                if (!container || !hidden) return;
+
+                const buttons = Array.from(container.querySelectorAll('.size-chip'));
+
+                // quitar listeners previos por seguridad
+                buttons.forEach(btn => btn.removeEventListener('click', handleClick));
+
+                function handleClick(e: Event) {
+                    const clicked = e.currentTarget as HTMLElement;
+                    buttons.forEach(b => {
+                        const is = b === clicked;
+                        b.classList.toggle('bg-accent-100', is);
+                        b.classList.toggle('text-bg-100', is);
+                        b.classList.toggle('border-accent-100', is);
+                        b.classList.toggle('bg-bg-200/50', !is);
+                        b.classList.toggle('text-text-200', !is);
+                        b.setAttribute('aria-pressed', is ? 'true' : 'false');
+                    });
+                    hidden.value = clicked.dataset?.size || '';
+                }
+
+                // añadir listeners
+                buttons.forEach(btn => btn.addEventListener('click', handleClick));
+
+                // accesibilidad: permitir selección por teclado (Enter / Space)
+                container.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        const active = document.activeElement as HTMLElement;
+                        if (active?.classList.contains('size-chip')) {
+                            e.preventDefault();
+                            active.click();
+                        }
+                    }
+                });
+            }
+            
+            initializeSizeSelector();
+        }
     }
-
-    // inicializar junto a los otros inicializadores
-    initializeSizeSelector();
-
-    document.addEventListener('astro:after-swap', () => {
-        initializeSizeSelector();
-    });
+    customElements.define('product-page', ProductPage);
 </script>
