@@ -110,6 +110,7 @@ export const listaProductos : Producto[] = [
   }
   
 ];
+
 export const getTopRatedProducts = () => {
   return listaProductos
     .sort((a, b) => (b?.stars ?? 0) - (a?.stars ?? 0))
@@ -121,3 +122,12 @@ export const valorAPesosChilenos = (valor: number) => {
     currency: "CLP",
   }).format(valor);
 };
+
+export interface ICartItem {
+  productId: number;
+  quantity: number;
+  options?: {
+    size?: string;
+    color?: string;
+  };
+}
