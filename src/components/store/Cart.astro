@@ -1,15 +1,25 @@
 ---
+
+import { listaProductos, valorAPesosChilenos, type ICartItem } from "../../assets/exports";
 import CartItem from "./CartItem.astro";
-import { cartItems, valorAPesosChilenos } from "../../assets/exports";
-const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+const cartItems : ICartItem[] = [
+    
+];
+const totalPrice = cartItems.reduce((total, item) => {
+    const product = listaProductos.find(p => p.id === item.productId);
+    if (product) {
+        return total + (product.price * item.quantity);
+    }
+    return total;
+}, 0);
 ---
 
-<div class="shadow-deep-green-900 shadow-xl rounded-xl h-min w-[350px] p-8">
+<div class="shadow rounded-xl h-min w-[350px] p-8">
     <h2 class="bg-deep-green-600/80 h-10 flex items-center justify-center rounded-t-md">Mi pedido</h2>
     <div class=" h-full max-h-[350px] overflow-y-auto">
 
-        {cartItems.map(item => (
-            <CartItem title={item.title} price={item.price} quantity={item.quantity} image={item.image} />
+        {cartItems && cartItems.map(item => (
+            <CartItem productId={item.productId} quantity={item.quantity} options={item.options} />
         ))}
     </div>
     <div>
