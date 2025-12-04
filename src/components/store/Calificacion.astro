@@ -4,12 +4,13 @@ interface Props {
     compact?: boolean;
 }
 const { estrellas, compact } = Astro.props;
+const id = Math.random().toString(36).substring(2, 9);
 ---
-<div>
-      <p class="text-xs sm:text-sm truncate xl:text-lg">Calificación: <span class={`font-bold sm:text-xl xl:text-2xl ${compact ? 'text-sm' : 'text-lg'}`}>{estrellas.toFixed(1)}</span></p>
-            <div class="flex items-center -mt-2">
-                {Array.from({ length: 5 }, (_, index) => (
-                    <span class={`text-lg lg:text-xl ${index < estrellas ? 'text-yellow-500' : 'text-gray-300'}`}>&#9733;</span>
-                ))}
-            </div>
+<div id={id}>
+    <p class="text-xs sm:text-sm truncate xl:text-lg">Calificación: <span class={`font-bold sm:text-xl xl:text-2xl ${compact ? 'text-sm' : 'text-lg'}`}>{estrellas.toFixed(1)}</span></p>
+    <div class="flex items-center justify-center -mt-2">
+        {Array.from({ length: 5 }, (_, index) => (
+            <span class={`text-lg lg:text-xl ${index < estrellas ? 'text-yellow-500' : 'text-gray-300'}`}>&#9733;</span>
+        ))}
+    </div>
 </div>
