@@ -1,0 +1,81 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+---
+
+<script type="module" src="/src/functions/preOrder.guard.ts" />
+<Layout>
+    <main>
+        <div id="detailContainer" class="bg-bg-100 rounded-b-md w-full p-4">
+            <h3 class="text-center text-xl font-bold text-text-100 mb-2">Detalle del pedido</h3>
+            <hr class="mx-5 mb-4"/>
+            <div id="itemContainer" class="mb-4">
+                
+            </div>
+            <p class="text-right text-lg text-text-100 mr-2">Total: <span id="total" class="text-xl font-semibold"></span></p>
+        </div>
+        
+    </main>
+    <template id="articleTemplate">
+        <article class="bg-bg-300/60 grid grid-cols-3 w-[90%] mx-auto mb-5 rounded-md p-3 overflow-hidden shadow-lg">
+            <img class="aspect-square w-16 m-auto shadow shadow-primary-100">
+            <div class="col-span-2">
+                <p id="name" class="mb-2 font-bold text-lg truncate"></p>
+                <div class="flex justify-evenly items-center mb-2 text-text-200">
+                    <p id="qty"></p>
+                    <p>x</p>
+                    <p id="price"></p>
+                </div>
+                <hr class="mb-2"/>
+                <p id="totalPrice" class="text-right text-lg font-semibold text-text-200"></p>
+            </div>
+        </article>
+    </template>
+</Layout>
+ <script>
+    import { getCart } from "../assets/cartStore"
+    import { listaProductos, valorAPesosChilenos } from "../assets/exports"
+
+    function init () {
+        const itemContainer = document.querySelector('#itemContainer')
+        const articleTemplate = document.querySelector('#articleTemplate') as HTMLTemplateElement
+        if (!itemContainer || !articleTemplate) return
+
+        itemContainer.innerHTML = ''
+
+        let total = 0
+        const pTotal = document.querySelector('span#total') as HTMLSpanElement
+
+        const cart = getCart()
+        if (!cart.length) return 
+
+        cart.forEach((item) => {
+            const cloneNode = articleTemplate.content.cloneNode(true) as HTMLElement
+            
+            const product = listaProductos.find((p) => p.id === item.productId)
+            if (!product) return
+
+            const img = cloneNode.querySelector('img')
+            const name = cloneNode.querySelector('#name')
+            const qty = cloneNode.querySelector('#qty')
+            const price = cloneNode.querySelector('#price')
+            const totalPrice = cloneNode.querySelector('#totalPrice')
+
+            total += item.quantity * product.price
+
+            img?.setAttribute('src', product.imageSrc)
+            img?.setAttribute('alt', 'Imagen - ' +  product.productName)
+
+            if (name && qty && price && totalPrice) {
+                name.textContent = product.productName
+                qty.textContent = item.quantity.toString()
+                price.textContent = valorAPesosChilenos(product.price)
+                totalPrice.textContent = valorAPesosChilenos(item.quantity * product.price)
+            }
+
+            itemContainer.appendChild(cloneNode)
+        })
+        pTotal.textContent = valorAPesosChilenos(total)
+    }
+    init()
+ </script>

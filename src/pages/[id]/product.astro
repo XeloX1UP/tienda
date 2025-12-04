@@ -1,8 +1,6 @@
 ---
 import { listaProductos, valorAPesosChilenos } from "../../assets/exports";
 import Calificacion from "../../components/store/Calificacion.astro";
-import Cart from "../../components/store/Cart.astro";
-import Modal from "../../components/store/Modal.astro";
 import Vitrina from "../../components/store/Vitrina.astro";
 import Layout from "../../layouts/Layout.astro";
 
@@ -19,14 +17,14 @@ const rnd = Math.random().toString(36).slice(2,9);
 ---
 
 <Layout title={producto.productName}>
-    <product-page class="text-center container mx-auto " id={rnd}>
+    <product-page class="text-center" id={rnd} data-product-id={id}>
         <h2 class="text-3xl md:text-4xl font-bold" transition:name={`productName${id}`}>{producto.productName}</h2>
         
         <!-- Galería de imágenes -->
-        <div class="relative w-64 h-64 mx-auto mt-4 rounded-md shadow-lg overflow-hidden bg-bg-200/20">
+        <div class="relative w-80 aspect-square mx-auto mt-4 rounded-md shadow-lg overflow-hidden bg-bg-200/20">
             <div class="relative w-full h-full" data-galleryLength={todasLasImagenes.length}>
                 {todasLasImagenes.map((imagen, index) => (
-                    <img 
+                    <img  
                         src={imagen} 
                         alt={`${producto.productName} - Imagen ${index + 1}`}
                         class={`absolute w-full h-full object-cover transition-opacity duration-500 ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
@@ -41,7 +39,7 @@ const rnd = Math.random().toString(36).slice(2,9);
                 <>
                     <button 
                         id="prevBtn" 
-                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
+                        class="absolute cursor-pointer left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
                         aria-label="Imagen anterior"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -50,7 +48,7 @@ const rnd = Math.random().toString(36).slice(2,9);
                     </button>
                     <button 
                         id="nextBtn" 
-                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
+                        class="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full z-10 transition-colors"
                         aria-label="Siguiente imagen"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +70,7 @@ const rnd = Math.random().toString(36).slice(2,9);
             )}
         </div>
 
-        <div class="flex justify-end w-5/6">
+        <div class="">
             <Calificacion estrellas={producto.stars ?? 0} />
         </div>
         <div class="mt-4 bg-bg-200/20 p-4 text-left sm:text-lg md:text-xl rounded-md shadow whitespace-pre-wrap">
@@ -94,7 +92,7 @@ const rnd = Math.random().toString(36).slice(2,9);
                         {producto.size.map((s, idx) => (
                             <button
                                 type="button"
-                                class={`size-chip inline-flex items-center justify-center px-3 py-1.5 rounded-full border transition-all text-sm ${idx === 0 ? 'bg-accent-100 text-bg-100 border-accent-100' : 'bg-bg-200/50 text-text-200 border-bg-300 hover:bg-accent-50 hover:border-accent-100'}`}
+                                class={`size-chip cursor-pointer inline-flex items-center justify-center px-3 py-1.5 rounded-full border transition-all text-sm ${idx === 0 ? 'bg-accent-100 text-bg-100 border-accent-100' : 'bg-bg-200/50 text-text-200 border-bg-300 hover:bg-accent-50 hover:border-accent-100'}`}
                                 data-size={s}
                                 aria-pressed={idx === 0 ? 'true' : 'false'}
                             >
@@ -117,7 +115,7 @@ const rnd = Math.random().toString(36).slice(2,9);
             </div>
         </div>
         <div>
-            <button class="mt-4 bg-primary-200 hover:bg-primary-200/90 border border-primary-200 text-bg-100 py-2 sm:py-3 md:py-5 px-4 rounded-md shadow hover:shadow-lg active:scale-95 w-full text-xl sm:text-2xl font-bold">
+            <button class="mt-4 bg-primary-200 hover:bg-primary-200/90 border border-primary-200 text-bg-100 py-2 sm:py-3 md:py-5 px-4 rounded-md shadow hover:shadow-lg active:scale-95 w-full text-xl sm:text-2xl font-bold" id="addToCartBtn">
                 Agregar al carro
             </button>
         </div>
@@ -125,10 +123,7 @@ const rnd = Math.random().toString(36).slice(2,9);
             <Vitrina filterId={id} horizontal compact/>
         </div>
     </product-page>
-    <Modal ariaLabel="Carrito de compras">
-        <button slot="trigger" data-role="trigger">Open Cart</button>
-        <Cart slot="content" />
-    </Modal>
+    
 </Layout>
 
 
@@ -179,11 +174,12 @@ const rnd = Math.random().toString(36).slice(2,9);
         btn.classList.remove('bg-bg-200/50', 'text-text-200');
         btn.setAttribute('aria-pressed', 'true');
         if (hidden) hidden.value = btn.dataset.size || '';
+        
       };
       btn.addEventListener('click', fn);
       return { btn, fn };
     });
-
+    
     // accesibilidad teclado
     const sizeContainer = el.querySelector('#sizeSelector');
     const sizeKeyHandler = (e) => {
@@ -202,7 +198,7 @@ const rnd = Math.random().toString(36).slice(2,9);
     // -----------------------
     const galleryDiv = el.querySelector('[data-galleryLength]');
     if (!galleryDiv) return;
-    const images = Array.from(galleryDiv.querySelectorAll('img'));;
+    const images = Array.from(galleryDiv.querySelectorAll('img'));
     const totalImages = images.length;
     let currentIndex = 0;
     const showImageAtIndex = (index) => {
@@ -252,4 +248,43 @@ const rnd = Math.random().toString(36).slice(2,9);
 
   initAll();
 })();
+
+
+</script>
+
+<script>
+    import { addToCart } from "../../assets/cartStore";
+import { listaProductos } from "../../assets/exports";
+
+    // Inicializar carrito de compras
+    function initializeCart() {
+        
+        const self = document.querySelector('product-page');
+        const productId = parseInt(self?.getAttribute('data-product-id') || '0', 10);
+        const producto = listaProductos.find(p => p.id == productId);
+        if (!producto) return;
+        const qtySelect = self?.querySelector('#cantidad') as HTMLSelectElement | null;
+        const sizeInput = self?.querySelector('#selectedSize') as HTMLInputElement | null;
+        const addToCartBtn = self?.querySelector('#addToCartBtn');
+        
+        addToCartBtn?.addEventListener('click', () => {
+            
+            const quantity = qtySelect ? parseInt(qtySelect.value, 10) : 1;
+            const selectedSize = sizeInput ? sizeInput.value : '';
+            if (addToCart(producto, quantity, selectedSize)) alert('Producto agregado al carrito');
+            
+        });
+    }
+    
+    document.addEventListener('astro:before-swap', () => {
+        // Limpia cualquier estado si es necesario antes de la navegación
+    });
+    document.addEventListener('astro:after-swap', () => {
+        // Re-inicializa el estado después de la navegación
+        initializeCart();
+    });
+    initializeCart();
+
+    
+    
 </script>

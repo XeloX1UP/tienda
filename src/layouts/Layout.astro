@@ -1,11 +1,13 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
+import Modal from '../components/store/Modal.astro';
+import Cart from '../components/store/Cart.astro';
 const { title } = Astro.props;
 const siteTitle = 'Aguja y Encanto';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -17,17 +19,62 @@ const siteTitle = 'Aguja y Encanto';
 			<header class=" bg-bg-200/70 flex justify-center items-center ">
 				<a href="/"><h1 class="text-text-100 text-2xl sm:text-3xl md:text-4xl font-bold h-24 content-center">Aguja y Encanto</h1></a>
 			</header>
-			<nav class="flex justify-between text-text-100/70 border-b border-bg-300 py-3 px-4 sm:px-6 mb-6 [&>ul]:flex [&>ul]:gap-2 [&>ul]:sm:gap-4 [&>ul]:sm:text-xl [&>ul]:[&>li]:cursor-pointer [&>ul]:[&>li]:hover:text-text-100 transition-colors">
-				<ul>
-					<li><a href="/">Inicio</a></li>
-					<li><a href="/auraStore">Tienda</a></li>
-				</ul>
-				<ul>
-					<li><a href="/login" data-astro-reload >Iniciar sesión</a></li>
-					<li><a href="/registro" data-astro-reload>Registrarse</a></li>
-				</ul>
+			<nav class="border-b border-bg-300 text-text-100/70 mb-10">
+				<div class="sm:flex sm:justify-between py-3 px-4 sm:px-6">
+					<!-- Este input debe estar A LA MISMA ALTURA que el menú móvil -->
+					<input type="checkbox" id="nav-toggle" class="hidden peer" />
+					<!-- Botón hamburguesa -->
+					<label for="nav-toggle" class="sm:hidden cursor-pointer">
+					<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M4 6h16M4 12h16M4 18h16" />
+					</svg>
+					</label>
+					<!-- Menu Mobile - DEBE SER HERMANO del input.peer -->
+					<!-- <div class="p-4 peer-checked:block sm:hidden hidden animate-fadeIn">
+						<ul class="flex flex-col gap-3 mb-4 text-base">
+							<li><a href="/" class="hover:text-text-100 transition">Inicio</a></li>
+							<li><a href="/auraStore" class="hover:text-text-100 transition">Tienda</a></li>
+						</ul>
+
+						<ul class="flex flex-col gap-3 text-base">
+							<li><a href="/login" data-astro-reload class="hover:text-text-100 transition">Iniciar sesión</a></li>
+							<li><a href="/registro" data-astro-reload class="hover:text-text-100 transition">Registrarse</a></li>
+							<li>
+								<Modal ariaLabel="Carrito de compras">
+									<button slot="trigger" data-role="trigger" class="hover:text-text-100 transition">Carrito</button>
+									<Cart slot="content" />
+								</Modal>
+							</li>
+						</ul>
+					</div> -->
+					
+
+					
+					
+					<!-- Menu Desktop -->
+					<ul class="hidden gap-6 peer-checked:block sm:text-xl animate-fadeIn sm:flex! mt-2 sm:mt-0 pl-4 sm:pl-0">
+						<li><a href="/" class="hover:text-text-100 transition">Inicio</a></li>
+						<li><a href="/auraStore" class="hover:text-text-100 transition">Tienda</a></li>
+					</ul>
+					<hr class="hidden gap-6 peer-checked:block sm:text-xl animate-fadeIn sm:flex! mt-2 sm:mt-0"/>
+					<ul class="hidden gap-6 peer-checked:block sm:text-xl animate-fadeIn sm:flex! mt-2 sm:mt-0 pl-4 sm:pl-0">
+						<li><a href="/login" data-astro-reload class="hover:text-text-100 transition">Iniciar sesión</a></li>
+						<li><a href="/registro" data-astro-reload class="hover:text-text-100 transition">Registrarse</a></li>
+						<li>
+							<Modal ariaLabel="Carrito de compras">
+								<button slot="trigger" data-role="trigger" class="hover:text-text-100 hover:cursor-pointer transition">Carrito</button>
+								<Cart slot="content" />
+							</Modal>
+						</li>
+					</ul>
+
+					
+				</div>
+
+				
 			</nav>
-			<div class=" flex-1">
+			<div class="container mx-auto flex-1">
 				<slot />
 
 			</div>
@@ -45,4 +92,24 @@ const siteTitle = 'Aguja y Encanto';
 		height: 100%;
 		scrollbar-gutter: stable
 	}
+	.animate-fadeIn {
+		animation: fadeIn 0.3s ease-in-out;
+	}
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 </style>
+<script>
+	const navToggle = document.getElementById('nav-toggle') as HTMLInputElement | null;
+	navToggle?.addEventListener('change', () => {
+		if (!navToggle.checked) {
+			window.scrollTo(0, 0);
+		}
+		
+	});
+</script>
