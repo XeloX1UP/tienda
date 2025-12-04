@@ -8,7 +8,6 @@ interface Props {
 const { open = false, ariaLabel = 'Modal Dialog' } = Astro.props;
 const modalId = `modal-${Math.random().toString(36).slice(2,9)}`;
 ---
-
 <style>
     :root {
         --modal-bg: rgba(0,0,0,0.5);
@@ -42,12 +41,12 @@ const modalId = `modal-${Math.random().toString(36).slice(2,9)}`;
         opacity: 0;
         max-width: calc(100% - 2rem);
         width: var(--max-w);
-        background: var(--panel-bg);
         border-radius: var(--radius);
         box-shadow: 0 10px 30px rgba(0,0,0,.18);
         padding: 1rem;
         transition: opacity .18s ease, transform .18s ease;
-        z-index: calc(var(--z) + 1);
+        z-index: -1;
+        pointer-events: none;
     }
 
     .panel:focus {
@@ -62,6 +61,8 @@ const modalId = `modal-${Math.random().toString(36).slice(2,9)}`;
     .is-open .panel {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
+        z-index: calc(var(--z) + 1);
+        pointer-events: auto;
     }
 
     .close-btn {
@@ -78,119 +79,94 @@ const modalId = `modal-${Math.random().toString(36).slice(2,9)}`;
     /* Small utility: allow content scroll inside panel */
     .panel-content {
         max-height: calc(80vh);
-        overflow: auto;
         padding-top: 1.5rem;
     }
 </style>
 
 <div class="modal" id={modalId} data-open={open}>
-    <div data-role="trigger-container">
+    <div data-role="trigger-container" class="relative">
         <slot name="trigger"></slot>
+        <p id="cartLength" class="sm:block absolute hidden -top-4 -right-5 text-bg-100 bg-primary-100 py-0.5 px-1.5 text-xs md:text-sm rounded-full font-bold "></p>
     </div>
     
     <div class="backdrop" data-role="backdrop" aria-hidden="true"></div>
 
     <div
-        class="panel"
-        role="dialog"
+        class="panel bg-bg-200"
+        aria-role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
         data-role="panel"
         tabindex="-1"
     >
         <button class="close-btn" aria-label="Cerrar modal" data-role="close">✕</button>
-        <div class="panel-content">
+        <div class="panel-content ">
             <slot name="content"></slot>
         </div>
     </div>
 </div>
 
-<script define:vars={{ modalId }}>
-    (function () {
-        
-        // Encuentra el modal por su ID único
-        const modal = document.getElementById(modalId) ;
-        if (!modal) return;
+<script>
+    function initialize () {
+        const self = document.querySelector('.modal')
+        if(!self) return
+        const triggerContainer = self.querySelector('[data-role="trigger-container"]')
+        const backdrop = self.querySelector('[data-role="backdrop"]')
+        const panel = self.querySelector('[data-role="panel"]') as HTMLElement
+        const closeBtn = self.querySelector('[data-role="close"]')
+        const cartLength = self.querySelector('#cartLength')
 
-        const backdrop = modal.querySelector('[data-role="backdrop"]') ;
-        const panel = modal.querySelector('[data-role="panel"]') ;
-        const closeBtn = modal.querySelector('[data-role="close"]') ;
-        const triggerContainer = modal.querySelector('[data-role="trigger-container"]') ;
+        //Desabilitar si está en preOrder
+        const url = new URL(document.URL)
+        if (url.pathname == '/preOrder') {
+            triggerContainer?.classList.add('pointer-events-none')
+        } else {
+            triggerContainer?.classList.remove('pointer-events-none')
+        }
         
-        let isOpen = Boolean(modal.getAttribute('data-open')) && modal.getAttribute('data-open') !== 'false';
-        let lastFocused = null;
-
-        function setOpen(state) {
+        
+        let isOpen = Boolean(self.getAttribute('data-open')) && self.getAttribute('data-open') !== 'false';
+        
+        function setOpen(state: boolean) {
             isOpen = !!state;
             if (isOpen) {
-                modal?.classList.add('is-open');
-                lastFocused = document.activeElement ;
+                self?.classList.add('is-open');
                 panel?.focus();
                 document.documentElement.style.overflow = 'hidden';
-                dispatchEvent('open');
             } else {
-                modal.classList.remove('is-open');
-                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-                document.documentElement.style.overflow = '';
-                dispatchEvent('close');
-            }
-        }
-
-        function dispatchEvent(name) {
-            modal.dispatchEvent(new CustomEvent(name, { bubbles: true }));
-        }
-
-        // Abre cuando se hace click en cualquier trigger dentro del contenedor
-        const openFromTrigger = (e) => {
-            e.preventDefault();
-            setOpen(true);
-        };
-        
-        // Attachar listeners a todos los botones trigger
-        if (triggerContainer) {
-            const attachToTriggers = () => {
-                const triggers = triggerContainer.querySelectorAll('[data-role="trigger"]');
+                self?.classList.remove('is-open');
                 
-                triggers.forEach(trigger => {
-                    const anyTrigger = trigger ;
-                    if (!anyTrigger.__modal_listener_attached) {
-                        trigger.addEventListener('click', openFromTrigger);
-                        anyTrigger.__modal_listener_attached = true;
-                    }
-                });
-            };
-
-            // Attachar inicialmente y en cambios de slot
-            attachToTriggers();
-            triggerContainer.addEventListener('slotchange', attachToTriggers);
+                document.documentElement.style.overflow = '';
+            }
         }
+        setOpen(isOpen)
 
-        // Close handlers
-        closeBtn?.addEventListener('click', () => setOpen(false));
-        backdrop?.addEventListener('click', () => setOpen(false));
+        triggerContainer?.addEventListener('click', () => setOpen(!isOpen))
+        closeBtn?.addEventListener('click', () => setOpen(!isOpen))
+        backdrop?.addEventListener('click' , () => setOpen(!isOpen))
 
-        // ESC to close
-        document.addEventListener('keydown', (e) => {
-            if (!isOpen) return;
-            if (e.key === 'Escape' || e.key === 'Esc') {
-                setOpen(false);
+        function setCartLength (v?: number) {
+            if (!cartLength) return
+            if (v) {
+                cartLength.innerHTML = v.toString()
+                cartLength.removeAttribute('hidden')
+                
             }
-        });
-
-        // Initialize
-        setOpen(isOpen);
-
-        // Expose API
-        new MutationObserver((mutations) => {
-            for (const m of mutations) {
-                if (m.type === 'attributes' && m.attributeName === 'data-open') {
-                    const val = modal.getAttribute('data-open');
-                    setOpen(val === 'true' || val === '');
-                }
+            if (!v || v == 0) {
+                cartLength.setAttribute('hidden', '')
             }
-        }).observe(modal, { attributes: true });
+        }
+        window.addEventListener('update-cartLength', (e: CustomEventInit) => {
+            const newValue: number = e.detail?.cartLength
+            
+            if (!cartLength) return
 
-        modal.openModal = () => setOpen(true);
-        modal.closeModal = () => setOpen(false);
-    })();
+            setCartLength(newValue)
+            
+        })
+    }
+    initialize()
+    document.addEventListener('astro:after-swap', initialize)
+
+    
 </script>
