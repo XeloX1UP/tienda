@@ -131,3 +131,30 @@ export interface ICartItem {
     color?: string;
   };
 }
+export interface IPaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+}
+export const paymentMethods: IPaymentMethod[] = [
+  {
+    id: "MP",
+    name: "Mercado Pago",
+    description: "Paga con Mercado Pago.",
+  },
+  {
+    id: "debit_card",
+    name: "Tarjeta de débito",
+    description: "Paga con tu tarjeta de débito.",
+  },
+  {
+    id: "paypal",
+    name: "PayPal",
+    description: "Paga a través de tu cuenta PayPal.",
+  },
+  {
+    id: "bank_transfer",
+    name: "Transferencia bancaria",
+    description: "Realiza una transferencia directa a nuestra cuenta bancaria.",
+  },
+];
